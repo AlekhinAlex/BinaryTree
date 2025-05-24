@@ -1,7 +1,11 @@
 #include <iostream>
 #include <sstream>
 #include <cassert>
+#include <algorithm>
 #include "../inc/binaryTree.hpp"
+#include "../types/complex.hpp"
+#include "../types/person.hpp"
+#include <numeric>
 
 // Helper function to check if two values are equal
 template <typename T>
@@ -55,7 +59,6 @@ int main()
 
     // Test 4: Insert at specific node
     tree.insert(6, tree.search(7));
-    // The height should be 2 because the insert method adds nodes in level order
     assertEqual(2, tree.getHeight(), "Height after inserting 6 should be 2");
 
     // Test 5: Test traversals
@@ -70,25 +73,85 @@ int main()
 
     // Test 6: Min/Max functionality
     std::cout << "\n\nTesting min/max functionality..." << std::endl;
-    int minValue = tree.getMin(); // Changed from const int* to int
-    int maxValue = tree.getMax(); // Changed from const int* to int
+    int minValue = tree.getMin();
+    int maxValue = tree.getMax();
     assertEqual(2, minValue, "Min value should be 2");
     assertEqual(7, maxValue, "Max value should be 7");
 
-    // Test 7: Remove a node
+    // Test 7: Iterator functionality
+    std::cout << "\nTesting iterator functionality..." << std::endl;
+    std::cout << "Iterating through tree using iterator: ";
+    for (auto it = tree.begin(); it != tree.end(); ++it)
+    {
+        std::cout << *it << " ";
+    }
+    std::cout << std::endl;
+
+    std::cout << "Iterating through tree using range-based for loop: ";
+    for (const auto &value : tree)
+    {
+        std::cout << value << " ";
+    }
+    std::cout << std::endl;
+
+    // Test 8: Const iterator functionality
+    std::cout << "\nTesting const iterator functionality..." << std::endl;
+    const BinaryTree<int> &constTree = tree;
+    std::cout << "Iterating through const tree using const_iterator: ";
+    for (auto it = constTree.cbegin(); it != constTree.cend(); ++it)
+    {
+        std::cout << *it << " ";
+    }
+    std::cout << std::endl;
+
+    // Test 9: Using iterators with algorithms
+    std::cout << "\nTesting iterators with algorithms..." << std::endl;
+    int sum = std::accumulate(tree.begin(), tree.end(), 0);
+    std::cout << "Sum of all elements: " << sum << std::endl;
+    assertEqual(27, sum, "Sum of all elements should be 27");
+
+    // Test 10: Complex type in binary tree
+    std::cout << "\nTesting binary tree with Complex type..." << std::endl;
+    BinaryTree<Complex> complexTree;
+    complexTree.insert(Complex(1, 2));
+    complexTree.insert(Complex(3, 4));
+    complexTree.insert(Complex(5, 6));
+
+    std::cout << "Complex tree elements: ";
+    for (const auto &c : complexTree)
+    {
+        std::cout << c << " ";
+    }
+    std::cout << std::endl;
+
+    // Test 11: Person type in binary tree
+    std::cout << "\nTesting binary tree with Person type..." << std::endl;
+    BinaryTree<Person> personTree;
+    personTree.insert(Person("Alice", 30));
+    personTree.insert(Person("Bob", 25));
+    personTree.insert(Person("Charlie", 35));
+
+    std::cout << "Person tree elements: ";
+    for (const auto &p : personTree)
+    {
+        std::cout << p << " ";
+    }
+    std::cout << std::endl;
+
+    // Test 12: Remove a node
     std::cout << "\nRemoving node 3..." << std::endl;
     tree.remove(3);
     std::cout << "Tree after removal:" << std::endl;
     tree.print();
 
-    // Test 8: Copy constructor
+    // Test 13: Copy constructor
     BinaryTree<int> treeCopy(tree);
     std::cout << "\nOriginal tree:" << std::endl;
     tree.print();
     std::cout << "\nCopied tree:" << std::endl;
     treeCopy.print();
 
-    // Test 9: Exception handling
+    // Test 14: Exception handling
     std::cout << "\nTesting exception handling..." << std::endl;
     try
     {
@@ -100,7 +163,7 @@ int main()
         std::cout << "PASSED: Caught exception: " << e.what() << std::endl;
     }
 
-    // Test 10: Clear the tree
+    // Test 15: Clear the tree
     std::cout << "\nClearing the tree..." << std::endl;
     tree.clear();
     assertEqual(true, tree.isEmpty(), "Tree should be empty after clear");

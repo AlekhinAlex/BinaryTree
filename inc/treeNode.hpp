@@ -32,6 +32,12 @@ public:
     bool isLeaf() const;
     bool hasChildren() const;
     TreeNode *clone() const;
+
+    bool operator==(const TreeNode &other) const;
+    bool operator!=(const TreeNode &other) const;
+    bool operator<(const TreeNode &other) const;
+    bool operator>(const TreeNode &other) const;
+    TreeNode &operator=(const TreeNode &other);
 };
 
 #include "../impl/treeNode.tpp"

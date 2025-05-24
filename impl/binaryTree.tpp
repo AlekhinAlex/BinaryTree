@@ -54,7 +54,7 @@ TreeNode<T> *BinaryTree<T>::findParent(TreeNode<T> *node) const
 template <typename T>
 void BinaryTree<T>::remove(const T &value)
 {
-    TreeNode<T> *nodeToRemove = this->search(value);
+    TreeNode<T> *nodeToRemove = search(value);
     if (!nodeToRemove)
     {
         throw std::runtime_error("Value not found");
@@ -279,7 +279,7 @@ TreeNode<T> *BinaryTree<T>::search(const T &value)
 template <typename T>
 bool BinaryTree<T>::hasValue(const T &value) const
 {
-    const TreeNode<T> node = this->search(value);
+    const TreeNode<T> node = search(value);
     if (node)
     {
         return true;
@@ -300,7 +300,9 @@ template <typename T>
 int BinaryTree<T>::getHeightHelper(const TreeNode<T> *node) const
 {
     if (node == nullptr)
+    {
         return -1;
+    }
 
     int leftHeight = getHeightHelper(node->getLeft());
     int rightHeight = getHeightHelper(node->getRight());
@@ -562,4 +564,180 @@ void BinaryTree<T>::getMinHelper(TreeNode<T> *node, TreeNode<T> *&min) const
     }
     getMinHelper(node->getLeft(), min);
     getMinHelper(node->getRight(), min);
+}
+
+template <typename T>
+bool BinaryTree<T>::isBalanced() const
+{
+    return isBalancedHelper(root) != -1;
+}
+
+template <typename T>
+int BinaryTree<T>::isBalancedHelper(const TreeNode<T> *node) const
+{
+    if (!node)
+    {
+        return 0;
+    }
+
+    int leftHeight = isBalancedHelper(node->getLeft());
+    if (leftHeight == -1)
+    {
+        return -1;
+    }
+
+    int rightHeight = isBalancedHelper(node->getRight());
+    if (rightHeight == -1)
+    {
+        return -1;
+    }
+
+    if (std::abs(leftHeight - rightHeight) > 1)
+    {
+        return -1;
+    }
+
+    return std::max(leftHeight, rightHeight) + 1;
+}
+
+template <typename T>
+void BinaryTree<T>::inorderTraversal(TreeNode<T> *node, std::vector<TreeNode<T> *> &nodes)
+{
+    if (!node)
+    {
+        return;
+    }
+    inorderTraversal(node->left, nodes);
+    nodes.push_back(node);
+    inorderTraversal(node->right, nodes);
+}
+
+template <typename T>
+TreeNode<T> *BinaryTree<T>::buildBalancedTree(std::vector<TreeNode<T> *> &nodes, int start, int end)
+{
+    if (start > end)
+    {
+        return nullptr;
+    }
+
+    int mid = start + (end - start) / 2;
+    TreeNode<T> *node = nodes[mid];
+    node->left = buildBalancedTree(nodes, start, mid - 1);
+    node->right = buildBalancedTree(nodes, mid + 1, end);
+    return node;
+}
+
+template <typename T>
+void BinaryTree<T>::balance()
+{
+    std::vector<TreeNode<T> *> nodes;
+    inOrderTraversal(root, nodes);
+    root = buildBalancedTree(nodes, 0, nodes.size() - 1);
+}
+
+template <typename T>
+BinaryTree<T> *BinaryTree<T>::subtree(const T &value) const
+{
+    TreeNode<T> *node = search(value);
+    if (!node)
+    {
+        throw std::runtime_error("Value not found in tree");
+    }
+
+    BinaryTree<T> *subtree = new BinaryTree<T>();
+    subtree->root = node->clone();
+    return subtree;
+}
+
+template <typename T>
+bool BinaryTree<T>::operator==(const BinaryTree<T> &other) const
+{
+    if (this == &other)
+    {
+        return true;
+    }
+    if (!root || !other.root)
+    {
+        return root == other.root;
+    }
+    return *root == *other.root;
+}
+
+template <typename T>
+bool BinaryTree<T>::operator!=(const BinaryTree<T> &other) const
+{
+    return !(*this == other);
+}
+
+template <typename T>
+BinaryTree<T> &BinaryTree<T>::operator=(const BinaryTree<T> &other)
+{
+    if (this == &other)
+    {
+        return *this;
+    }
+
+    clear();
+    if (other.root)
+    {
+        root = other.root->clone();
+    }
+    else
+    {
+        root = nullptr;
+    }
+    return *this;
+}
+
+template <typename T>
+bool BinaryTree<T>::containsSubtree(const BinaryTree &other) const
+{
+    if (!root || !other.root)
+    {
+        return !other.root;
+    }
+
+    const TreeNode<T> *node = search(other.root->getData());
+    if (!node)
+    {
+        return false;
+    }
+
+    return *node == *other.root;
+}
+
+template <typename T>
+typename BinaryTree<T>::Iterator BinaryTree<T>::begin()
+{
+    return Iterator(root);
+}
+
+template <typename T>
+typename BinaryTree<T>::Iterator BinaryTree<T>::end()
+{
+    Iterator it(nullptr);
+    if (root)
+    {
+        it = Iterator(root);
+        it.current = it.nodes.size();
+    }
+    return it;
+}
+
+template <typename T>
+typename BinaryTree<T>::ConstIterator BinaryTree<T>::cbegin() const
+{
+    return ConstIterator(root);
+}
+
+template <typename T>
+typename BinaryTree<T>::ConstIterator BinaryTree<T>::cend() const
+{
+    ConstIterator it(nullptr);
+    if (root)
+    {
+        it = ConstIterator(root);
+        it.current = it.nodes.size();
+    }
+    return it;
 }

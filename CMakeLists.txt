@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 file(GLOB SOURCES "src/*.cpp")
 file(GLOB HEADERS "inc/*.hpp")
+file(GLOB TYPES "inc/types/*.hpp")
 file(GLOB IMPLEMENTATIONS "impl/*.tpp")
 file(GLOB TEST_HEADERS "tests/*.hpp")
 file(GLOB TEST_SOURCE "tests/*.cpp")
@@ -22,12 +23,14 @@ add_executable(tests
     ${TEST_SOURCE}
     ${HEADERS}
     ${IMPLEMENTATIONS}
+    ${TYPES}
 )
 
 add_executable(main
     ${SOURCES} 
     ${HEADERS}
     ${IMPLEMENTATIONS}
+    ${TYPES}
 )
 
 target_link_libraries(tests GTest::GTest GTest::Main pthread)

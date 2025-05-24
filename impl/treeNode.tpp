@@ -94,3 +94,66 @@ TreeNode<T> *TreeNode<T>::clone() const
     }
     return newNode;
 }
+
+template <typename T>
+bool TreeNode<T>::operator==(const TreeNode &other) const
+{
+
+    if (data != other.data)
+    {
+        return false;
+    }
+
+    if ((left == nullptr) != (other.left == nullptr))
+    {
+        return false;
+    }
+    if (left && !(*left == *other.left))
+    {
+        return false;
+    }
+
+    if ((right == nullptr) != (other.right == nullptr))
+    {
+        return false;
+    }
+    if (right && !(*right == *other.right))
+    {
+        return false;
+    }
+
+    return true;
+}
+
+template <typename T>
+bool TreeNode<T>::operator!=(const TreeNode &other) const
+{
+    return !(*this == other);
+}
+template <typename T>
+bool TreeNode<T>::operator<(const TreeNode &other) const
+{
+    return data < other.data;
+}
+template <typename T>
+bool TreeNode<T>::operator>(const TreeNode &other) const
+{
+    return data > other.data;
+}
+template <typename T>
+TreeNode<T> &TreeNode<T>::operator=(const TreeNode &other)
+{
+    if (this != &other)
+    {
+        TreeNode<T> *newLeft = other.left ? other.left->clone() : nullptr;
+        TreeNode<T> *newRight = other.right ? other.right->clone() : nullptr;
+
+        delete left;
+        delete right;
+
+        data = other.data;
+        left = newLeft;
+        right = newRight;
+    }
+    return *this;
+}
