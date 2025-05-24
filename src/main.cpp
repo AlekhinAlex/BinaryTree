@@ -1,27 +1,104 @@
 #include <iostream>
+#include <sstream>
+#include <cassert>
 #include "../inc/binaryTree.hpp"
+
+// Helper function to check if two values are equal
+template <typename T>
+void assertEqual(const T &expected, const T &actual, const std::string &message)
+{
+    if (expected != actual)
+    {
+        std::cerr << "FAILED: " << message << std::endl;
+        std::cerr << "  Expected: " << expected << std::endl;
+        std::cerr << "  Actual: " << actual << std::endl;
+    }
+    else
+    {
+        std::cout << "PASSED: " << message << std::endl;
+    }
+}
+
+// Helper function to capture output from traversals
+template <typename T>
+std::string captureOutput(void (BinaryTree<T>::*method)(std::ostream &) const, const BinaryTree<T> &tree)
+{
+    std::ostringstream oss;
+    (tree.*method)(oss);
+    return oss.str();
+}
 
 int main()
 {
+    std::cout << "=== Testing Binary Tree Implementation ===" << std::endl;
+
+    // Test 1: Create an empty tree
     BinaryTree<int> tree;
-    //     5
-    //    / \
-    //   3   7
-    //  / \
-    // 2   4
+    assertEqual(true, tree.isEmpty(), "Empty tree should be empty");
+    assertEqual(-1, tree.getHeight(), "Height of empty tree should be -1");
 
-    tree.insert(tree.getRoot(), 5);
-    tree.insert(tree.getRoot(), 3);
-    tree.insert(tree.getRoot(), 7);
-    tree.insert(tree.getRoot(), 2);
-    tree.insert(tree.getRoot(), 4);
+    // Test 2: Insert nodes
+    tree.insert(5); // Root
+    assertEqual(false, tree.isEmpty(), "Tree with root should not be empty");
+    assertEqual(0, tree.getHeight(), "Height of tree with only root should be 0");
 
-    std::cout << "\nTree height: " << tree.getHeight() << std::endl;
-    std::cout << "\nSearch 4: " << tree.search(5)->getData() << std::endl;
+    tree.insert(3); // Left child of root
+    tree.insert(7); // Right child of root
+    tree.insert(2); // Left child of 3
+    tree.insert(4); // Right child of 3
 
-    tree.insert(tree.search(4), 77);
+    assertEqual(2, tree.getHeight(), "Height of tree should be 2");
 
-    std::cout << "\nSearch 77: " << tree.search(77)->getData() << std::endl;
+    // Test 3: Search for nodes
+    TreeNode<int> *node4 = tree.search(4);
+    assertEqual(4, node4->getData(), "Search should find node with value 4");
+
+    // Test 4: Insert at specific node
+    tree.insert(6, tree.search(7));
+    assertEqual(3, tree.getHeight(), "Height after inserting 6 should be 3");
+
+    // Test 5: Test traversals
+    std::cout << "\nInorder traversal (expected: 2 3 4 5 6 7): ";
+    tree.inorderTraversal();
+
+    std::cout << "\nPreorder traversal (expected: 5 3 2 4 7 6): ";
+    tree.preorderTraversal();
+
+    std::cout << "\nPostorder traversal (expected: 2 4 3 6 7 5): ";
+    tree.postorderTraversal();
+
+    // Test 6: Remove a node
+    std::cout << "\n\nRemoving node 3..." << std::endl;
+    tree.remove(3);
+    std::cout << "Tree after removal:" << std::endl;
+    tree.print();
+
+    // Test 7: Copy constructor
+    BinaryTree<int> treeCopy(tree);
+    std::cout << "\nOriginal tree:" << std::endl;
+    tree.print();
+    std::cout << "\nCopied tree:" << std::endl;
+    treeCopy.print();
+
+    // Test 8: Exception handling
+    std::cout << "\nTesting exception handling..." << std::endl;
+    try
+    {
+        tree.remove(99); // Value doesn't exist
+        std::cout << "FAILED: Should have thrown exception" << std::endl;
+    }
+    catch (const std::runtime_error &e)
+    {
+        std::cout << "PASSED: Caught exception: " << e.what() << std::endl;
+    }
+
+    // Test 9: Clear the tree
+    std::cout << "\nClearing the tree..." << std::endl;
+    tree.clear();
+    assertEqual(true, tree.isEmpty(), "Tree should be empty after clear");
+    assertEqual(-1, tree.getHeight(), "Height should be -1 after clear");
+
+    std::cout << "\nAll tests completed!" << std::endl;
 
     return 0;
 }
