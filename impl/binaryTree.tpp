@@ -277,6 +277,20 @@ TreeNode<T> *BinaryTree<T>::search(const T &value)
 }
 
 template <typename T>
+bool BinaryTree<T>::hasValue(const T &value) const
+{
+    const TreeNode<T> node = this->search(value);
+    if (node)
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+template <typename T>
 int BinaryTree<T>::getHeight() const
 {
     return getHeightHelper(root);
@@ -433,4 +447,119 @@ void BinaryTree<T>::postorderTraversal(const TreeNode<T> *node, std::ostream &os
     postorderTraversal(node->getLeft(), os);
     postorderTraversal(node->getRight(), os);
     os << node->getData() << " ";
+}
+
+template <typename T>
+const TreeNode<T> *BinaryTree<T>::getMaxNode() const
+{
+    if (!root)
+    {
+        return nullptr;
+    }
+    const TreeNode<T> *max = root;
+    getMaxHelper(root, max);
+    return max;
+}
+
+template <typename T>
+TreeNode<T> *BinaryTree<T>::getMaxNode()
+{
+    if (!root)
+    {
+        return nullptr;
+    }
+    TreeNode<T> *max = root;
+    getMaxHelper(root, max);
+    return max;
+}
+
+template <typename T>
+const T &BinaryTree<T>::getMax() const
+{
+    const TreeNode<T> *max = root;
+    getMaxHelper(root, max);
+
+    return max->getData();
+}
+
+template <typename T>
+T &BinaryTree<T>::getMax()
+{
+    TreeNode<T> *max = root;
+    getMaxHelper(root, max);
+
+    return max->getData();
+}
+
+template <typename T>
+void BinaryTree<T>::getMaxHelper(TreeNode<T> *node, TreeNode<T> *&max) const
+{
+    if (!node)
+    {
+        return;
+    }
+    if (node->getData() > max->getData())
+    {
+        max = node;
+    }
+    getMaxHelper(node->getLeft(), max);
+    getMaxHelper(node->getRight(), max);
+}
+
+template <typename T>
+const TreeNode<T> *BinaryTree<T>::getMinNode() const
+{
+    if (!root)
+    {
+        return nullptr;
+    }
+    const TreeNode<T> *min = root;
+    getMinHelper(root, min);
+    return min;
+}
+
+template <typename T>
+TreeNode<T> *BinaryTree<T>::getMinNode()
+{
+    if (!root)
+    {
+        return nullptr;
+    }
+    TreeNode<T> *min = root;
+    getMinHelper(root, min);
+    return min;
+}
+
+template <typename T>
+const T &BinaryTree<T>::getMin() const
+{
+    const TreeNode<T> *min = root;
+    getMinHelper(root, min);
+
+    return min->getData();
+}
+
+template <typename T>
+T &BinaryTree<T>::getMin()
+{
+    TreeNode<T> *min = root;
+    getMinHelper(root, min);
+
+    return min->getData();
+}
+
+template <typename T>
+void BinaryTree<T>::getMinHelper(TreeNode<T> *node, TreeNode<T> *&min) const
+{
+    if (!node)
+    {
+        return;
+    }
+
+    if (node->getData() < min->getData())
+    {
+        min = node;
+    }
+    getMinHelper(node->getLeft(), min);
+    getMinHelper(node->getRight(), min);
 }

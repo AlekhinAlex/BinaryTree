@@ -17,6 +17,18 @@ public:
     const TreeNode<T> *getRoot() const;
     TreeNode<T> *getRoot();
 
+    const TreeNode<T> *getMaxNode() const;
+    TreeNode<T> *getMaxNode();
+    const T &getMax() const;
+    T &getMax();
+    void getMaxHelper(TreeNode<T> *node, TreeNode<T> *&max) const;
+
+    const TreeNode<T> *getMinNode() const;
+    TreeNode<T> *getMinNode();
+    const T &getMin() const;
+    T &getMin();
+    void getMinHelper(TreeNode<T> *node, TreeNode<T> *&min) const;
+
     void insert(const T &value, TreeNode<T> *root); //? Do I need this
     void insert(const T &value);
 
@@ -27,13 +39,13 @@ public:
 
     TreeNode<T> *findParent(TreeNode<T> *node) const;
 
+    //? MB remake for convinient printing into app
     void print(std::ostream &os = std::cout) const;
 
     bool hasValue(const T &value) const;
 
     void balance();
 
-    //? Mb add std::ostream
     // L - root - R
     void inorderTraversal(std::ostream &os = std::cout) const;
     void inorderTraversal(const TreeNode<T> *node, std::ostream &os = std::cout) const;
@@ -45,11 +57,6 @@ public:
     // L - R - root
     void postorderTraversal(std::ostream &os = std::cout) const;
     void postorderTraversal(const TreeNode<T> *node, std::ostream &os = std::cout) const;
-
-    std::string toStringInorder() const;
-    std::string toStringPreorder() const;
-    std::string toStringPostorder() const;
-    std::string toStringFormatted() const;
 
     TreeNode<T> *subtree(const T &value) const;
     bool containsSubtree(const BinaryTree &sub) const;
