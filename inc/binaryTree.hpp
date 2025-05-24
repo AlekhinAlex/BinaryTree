@@ -12,12 +12,7 @@ class BinaryTree
 private:
     TreeNode<T> *root;
 
-    TreeNode<T> *applyHelper(const TreeNode<T> *node, std::function<T(T)> func) const;
-    TreeNode<T> *whereHelper(const TreeNode<T> *node, std::function<bool(T)> predicate) const;
     void threadedTraversalHelper(TreeNode<T> *node, std::vector<TreeNode<T> *> &nodes, const std::string &order);
-    void serializeHelper(const TreeNode<T> *node, std::ostream &os, const std::string &format) const;
-    TreeNode<T> *deserializeHelper(std::istream &is, const std::string &format);
-    bool containsSubtreeHelper(const TreeNode<T> *treeNode, const TreeNode<T> *subNode) const;
 
 public:
     BinaryTree();
@@ -95,7 +90,8 @@ public:
     std::string serialize(const std::string &format = "default") const;
     void deserialize(const std::string &data, const std::string &format = "default");
 
-    BinaryTree<T> merge(const BinaryTree<T> &other) const;
+    BinaryTree<T> *mergeImmutable(const BinaryTree<T> &other) const;
+    void merge(const BinaryTree<T> &other);
 
     BinaryTree<T> operator+(const BinaryTree<T> &other) const;
     friend std::ostream &operator<<(std::ostream &os, const BinaryTree<T> &tree);
@@ -104,10 +100,10 @@ public:
     using Iterator = BinaryTreeIterator<T>;
     using ConstIterator = ConstBinaryTreeIterator<T>;
 
-    Iterator begin();
-    Iterator end();
-    ConstIterator cbegin() const;
-    ConstIterator cend() const;
+    Iterator begin(std::string order = "inorder");
+    Iterator end(std::string order = "inorder");
+    ConstIterator cbegin(std::string order = "inorder") const;
+    ConstIterator cend(std::string order = "inorder") const;
 };
 
 #include "../impl/binaryTree.tpp"

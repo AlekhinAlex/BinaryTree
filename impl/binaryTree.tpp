@@ -273,21 +273,13 @@ TreeNode<T> *BinaryTree<T>::search(const T &value)
             q.push(temp->getRight());
     }
 
-    throw std::runtime_error("Value not found in tree");
+    return nullptr;
 }
 
 template <typename T>
 bool BinaryTree<T>::hasValue(const T &value) const
 {
-    const TreeNode<T> node = search(value);
-    if (node)
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
+    return search(value) != nullptr;
 }
 
 template <typename T>
@@ -397,7 +389,10 @@ void BinaryTree<T>::print(std::ostream &os) const
 template <typename T>
 void BinaryTree<T>::inorderTraversal(std::ostream &os) const
 {
-    inorderTraversal(root, os);
+    for (auto it = cbegin("inorder"); it != cend("inorder"); ++it)
+    {
+        os << *it << " ";
+    }
 }
 
 template <typename T>
@@ -408,15 +403,19 @@ void BinaryTree<T>::inorderTraversal(const TreeNode<T> *node, std::ostream &os) 
         return;
     }
 
-    inorderTraversal(node->getLeft(), os);
-    os << node->getData() << " ";
-    inorderTraversal(node->getRight(), os);
+    for (auto it = cbegin(node, "inorder"); it != cend(node, "inorder"); ++it)
+    {
+        os << *it << " ";
+    }
 }
 
 template <typename T>
 void BinaryTree<T>::preorderTraversal(std::ostream &os) const
 {
-    preorderTraversal(root, os);
+    for (auto it = cbegin("preorder"); it != cend("preorder"); ++it)
+    {
+        os << *it << " ";
+    }
 }
 
 template <typename T>
@@ -427,15 +426,19 @@ void BinaryTree<T>::preorderTraversal(const TreeNode<T> *node, std::ostream &os)
         return;
     }
 
-    os << node->getData() << " ";
-    preorderTraversal(node->getLeft(), os);
-    preorderTraversal(node->getRight(), os);
+    for (auto it = cbegin(node, "preorder"); it != cend(node, "preorder"); ++it)
+    {
+        os << *it << " ";
+    }
 }
 
 template <typename T>
 void BinaryTree<T>::postorderTraversal(std::ostream &os) const
 {
-    postorderTraversal(root, os);
+    for (auto it = cbegin("postorder"); it != cend("postorder"); ++it)
+    {
+        os << *it << " ";
+    }
 }
 
 template <typename T>
@@ -446,9 +449,10 @@ void BinaryTree<T>::postorderTraversal(const TreeNode<T> *node, std::ostream &os
         return;
     }
 
-    postorderTraversal(node->getLeft(), os);
-    postorderTraversal(node->getRight(), os);
-    os << node->getData() << " ";
+    for (auto it = cbegin(node, "postorder"); it != cend(node, "postorder"); ++it)
+    {
+        os << *it << " ";
+    }
 }
 
 template <typename T>
@@ -607,9 +611,9 @@ void BinaryTree<T>::inorderTraversal(TreeNode<T> *node, std::vector<TreeNode<T> 
     {
         return;
     }
-    inorderTraversal(node->left, nodes);
+    inorderTraversal(node->getLeft(), nodes);
     nodes.push_back(node);
-    inorderTraversal(node->right, nodes);
+    inorderTraversal(node->getRight(), nodes);
 }
 
 template <typename T>
@@ -622,23 +626,25 @@ TreeNode<T> *BinaryTree<T>::buildBalancedTree(std::vector<TreeNode<T> *> &nodes,
 
     int mid = start + (end - start) / 2;
     TreeNode<T> *node = nodes[mid];
-    node->left = buildBalancedTree(nodes, start, mid - 1);
-    node->right = buildBalancedTree(nodes, mid + 1, end);
+    node->getLeft() = buildBalancedTree(nodes, start, mid - 1);
+    node->getRight() = buildBalancedTree(nodes, mid + 1, end);
     return node;
 }
 
 template <typename T>
 void BinaryTree<T>::balance()
 {
+    if (!root)
+        return;
     std::vector<TreeNode<T> *> nodes;
-    inOrderTraversal(root, nodes);
+    inorderTraversal(root, nodes);
     root = buildBalancedTree(nodes, 0, nodes.size() - 1);
 }
 
 template <typename T>
 BinaryTree<T> *BinaryTree<T>::subtree(const T &value) const
 {
-    TreeNode<T> *node = search(value);
+    const TreeNode<T> *node = search(value);
     if (!node)
     {
         throw std::runtime_error("Value not found in tree");
@@ -692,52 +698,242 @@ BinaryTree<T> &BinaryTree<T>::operator=(const BinaryTree<T> &other)
 template <typename T>
 bool BinaryTree<T>::containsSubtree(const BinaryTree &other) const
 {
-    if (!root || !other.root)
-    {
-        return !other.root;
-    }
-
-    const TreeNode<T> *node = search(other.root->getData());
-    if (!node)
-    {
+    if (!other.root)
+        return true;
+    if (!root)
         return false;
+
+    std::queue<const TreeNode<T> *> q;
+    q.push(root);
+
+    while (!q.empty())
+    {
+        const TreeNode<T> *current = q.front();
+        q.pop();
+
+        if (current->getData() == other.root->getData() && *current == *other.root)
+        {
+            return true;
+        }
+
+        if (current->getLeft())
+            q.push(current->getLeft());
+        if (current->getRight())
+            q.push(current->getRight());
     }
 
-    return *node == *other.root;
+    return false;
 }
 
 template <typename T>
-typename BinaryTree<T>::Iterator BinaryTree<T>::begin()
+void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
 {
-    return Iterator(root);
+    std::vector<TreeNode<T> *> nodes;
+    for (auto it = begin(traversalOrder); it != end(traversalOrder); ++it)
+    {
+        nodes.push_back(search(*it));
+    }
+
+    threadedTraversalHelper(root, nodes, traversalOrder);
 }
 
 template <typename T>
-typename BinaryTree<T>::Iterator BinaryTree<T>::end()
+void BinaryTree<T>::threadedTraversalHelper(TreeNode<T> *node, std::vector<TreeNode<T> *> &nodes, const std::string &order)
 {
-    Iterator it(nullptr);
+    // Implementation would depend on how you want to thread the tree
+    // This is a placeholder for the actual implementation
+}
+
+template <typename T>
+void BinaryTree<T>::traverseThreaded(std::function<void(T)> visit) const
+{
+    for (auto it = cbegin(); it != cend(); ++it)
+    {
+        visit(*it);
+    }
+}
+
+template <typename T>
+void BinaryTree<T>::merge(const BinaryTree<T> &other)
+{
+    for (auto it = other.cbegin(); it != other.cend(); ++it)
+    {
+        this->insert(*it);
+    }
+}
+
+template <typename T>
+BinaryTree<T> *BinaryTree<T>::mergeImmutable(const BinaryTree<T> &other) const
+{
+    BinaryTree<T> *result = new BinaryTree<T>(*this);
+    result->merge(other);
+    return result;
+}
+
+template <typename T>
+BinaryTree<T> BinaryTree<T>::operator+(const BinaryTree<T> &other) const
+{
+    return mergeImmutable(other);
+}
+
+template <typename T>
+typename BinaryTree<T>::Iterator BinaryTree<T>::begin(std::string order)
+{
+    return Iterator(root, order);
+}
+
+template <typename T>
+typename BinaryTree<T>::Iterator BinaryTree<T>::end(std::string order)
+{
+    Iterator it(nullptr, order);
     if (root)
     {
-        it = Iterator(root);
+        it = Iterator(root, order);
         it.current = it.nodes.size();
     }
     return it;
 }
 
 template <typename T>
-typename BinaryTree<T>::ConstIterator BinaryTree<T>::cbegin() const
+typename BinaryTree<T>::ConstIterator BinaryTree<T>::cbegin(std::string order) const
 {
-    return ConstIterator(root);
+    return ConstIterator(root, order);
 }
 
 template <typename T>
-typename BinaryTree<T>::ConstIterator BinaryTree<T>::cend() const
+typename BinaryTree<T>::ConstIterator BinaryTree<T>::cend(std::string order) const
 {
-    ConstIterator it(nullptr);
+    ConstIterator it(nullptr, order);
     if (root)
     {
-        it = ConstIterator(root);
+        it = ConstIterator(root, order);
         it.current = it.nodes.size();
     }
     return it;
+}
+
+template <typename T>
+BinaryTree<T> BinaryTree<T>::apply(std::function<T(T)> func) const
+{
+    BinaryTree<T> result;
+    for (auto it = cbegin("preorder"); it != cend("preorder"); ++it)
+    {
+        result.insert(func(*it));
+    }
+    return result;
+}
+
+template <typename T>
+BinaryTree<T> BinaryTree<T>::where(std::function<bool(T)> predicate) const
+{
+    BinaryTree<T> result;
+    for (auto it = cbegin(); it != cend(); ++it)
+    {
+        if (predicate(*it))
+        {
+            result.insert(*it);
+        }
+    }
+    return result;
+}
+
+template <typename T>
+T BinaryTree<T>::reduce(std::function<T(T, T)> func, T initial) const
+{
+    T result = initial;
+    for (auto it = cbegin(); it != cend(); ++it)
+    {
+        result = func(result, *it);
+    }
+    return result;
+}
+
+template <typename T>
+std::string BinaryTree<T>::serialize(const std::string &format) const
+{
+    std::ostringstream oss;
+
+    if (format == "json")
+    {
+        oss << "{ \"tree\": [";
+        bool first = true;
+        for (auto it = cbegin(); it != cend(); ++it)
+        {
+            if (!first)
+                oss << ", ";
+            oss << "\"" << *it << "\"";
+            first = false;
+        }
+        oss << "] }";
+    }
+    else
+    {
+        // Default format - simple comma-separated values
+        bool first = true;
+        for (auto it = cbegin(); it != cend(); ++it)
+        {
+            if (!first)
+                oss << ",";
+            oss << *it;
+            first = false;
+        }
+    }
+
+    return oss.str();
+}
+
+template <typename T>
+void BinaryTree<T>::deserialize(const std::string &data, const std::string &format)
+{
+    clear();
+
+    std::istringstream iss(data);
+    std::string token;
+
+    if (format == "json")
+    {
+        // Simple JSON parsing (would need a more robust parser for real use)
+        std::string jsonData = data;
+        size_t start = jsonData.find('[');
+        size_t end = jsonData.find(']');
+
+        if (start != std::string::npos && end != std::string::npos)
+        {
+            std::string values = jsonData.substr(start + 1, end - start - 1);
+            std::istringstream valueStream(values);
+            std::string item;
+
+            while (std::getline(valueStream, item, ','))
+            {
+                item.erase(0, item.find_first_not_of(" \""));
+                item.erase(item.find_last_not_of(" \"") + 1);
+
+                std::istringstream converter(item);
+                T value;
+                if (converter >> value)
+                {
+                    insert(value);
+                }
+            }
+        }
+    }
+    else
+    {
+        while (std::getline(iss, token, ','))
+        {
+            std::istringstream converter(token);
+            T value;
+            if (converter >> value)
+            {
+                insert(value);
+            }
+        }
+    }
+}
+
+template <typename T>
+std::ostream &operator<<(std::ostream &os, const BinaryTree<T> &tree)
+{
+    tree.print(os);
+    return os;
 }

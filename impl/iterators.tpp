@@ -1,15 +1,6 @@
 #include "../inc/iterators.hpp"
 
 template <typename T>
-BinaryTreeIterator<T>::BinaryTreeIterator(NodePtr root) : current(0)
-{
-    if (root)
-    {
-        buildInOrder(root);
-    }
-}
-
-template <typename T>
 void BinaryTreeIterator<T>::buildInOrder(NodePtr node)
 {
     if (!node)
@@ -19,6 +10,50 @@ void BinaryTreeIterator<T>::buildInOrder(NodePtr node)
     buildInOrder(node->getLeft());
     nodes.push_back(node);
     buildInOrder(node->getRight());
+}
+
+template <typename T>
+void BinaryTreeIterator<T>::buildPreOrder(NodePtr node)
+{
+    if (!node)
+    {
+        return;
+    }
+    nodes.push_back(node);
+    buildPreOrder(node->getLeft());
+    buildPreOrder(node->getRight());
+}
+
+template <typename T>
+void BinaryTreeIterator<T>::buildPostOrder(NodePtr node)
+{
+    if (!node)
+    {
+        return;
+    }
+    buildPostOrder(node->getLeft());
+    buildPostOrder(node->getRight());
+    nodes.push_back(node);
+}
+
+template <typename T>
+BinaryTreeIterator<T>::BinaryTreeIterator(NodePtr root, std::string order) : current(0)
+{
+    if (root)
+    {
+        if (order == "preorder")
+        {
+            buildPreOrder(root);
+        }
+        else if (order == "postorder")
+        {
+            buildPostOrder(root);
+        }
+        else
+        {
+            buildInOrder(root);
+        }
+    }
 }
 
 template <typename T>
@@ -86,15 +121,6 @@ bool BinaryTreeIterator<T>::operator==(const BinaryTreeIterator<T> &other) const
 // ConstBinaryTreeIterator implementation
 
 template <typename T>
-ConstBinaryTreeIterator<T>::ConstBinaryTreeIterator(ConstNodePtr root) : current(0)
-{
-    if (root)
-    {
-        buildInOrder(root);
-    }
-}
-
-template <typename T>
 void ConstBinaryTreeIterator<T>::buildInOrder(ConstNodePtr node)
 {
     if (!node)
@@ -104,6 +130,50 @@ void ConstBinaryTreeIterator<T>::buildInOrder(ConstNodePtr node)
     buildInOrder(node->getLeft());
     nodes.push_back(node);
     buildInOrder(node->getRight());
+}
+
+template <typename T>
+void ConstBinaryTreeIterator<T>::buildPreOrder(ConstNodePtr node)
+{
+    if (!node)
+    {
+        return;
+    }
+    nodes.push_back(node);
+    buildPreOrder(node->getLeft());
+    buildPreOrder(node->getRight());
+}
+
+template <typename T>
+void ConstBinaryTreeIterator<T>::buildPostOrder(ConstNodePtr node)
+{
+    if (!node)
+    {
+        return;
+    }
+    buildPostOrder(node->getLeft());
+    buildPostOrder(node->getRight());
+    nodes.push_back(node);
+}
+
+template <typename T>
+ConstBinaryTreeIterator<T>::ConstBinaryTreeIterator(ConstNodePtr root, std::string order) : current(0)
+{
+    if (root)
+    {
+        if (order == "preorder")
+        {
+            buildPreOrder(root);
+        }
+        else if (order == "postorder")
+        {
+            buildPostOrder(root);
+        }
+        else
+        {
+            buildInOrder(root);
+        }
+    }
 }
 
 template <typename T>

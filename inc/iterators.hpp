@@ -16,7 +16,7 @@ class BinaryTreeIterator
 public:
     using NodePtr = TreeNode<T> *;
 
-    BinaryTreeIterator(NodePtr root);
+    BinaryTreeIterator(NodePtr root, std::string order = "inorder");
 
     T &operator*();
     BinaryTreeIterator &operator++();
@@ -31,6 +31,8 @@ private:
     size_t current;
 
     void buildInOrder(NodePtr node);
+    void buildPreOrder(NodePtr node);
+    void buildPostOrder(NodePtr node);
 };
 
 template <typename T>
@@ -41,7 +43,7 @@ class ConstBinaryTreeIterator
 public:
     using ConstNodePtr = const TreeNode<T> *;
 
-    ConstBinaryTreeIterator(ConstNodePtr root);
+    ConstBinaryTreeIterator(ConstNodePtr root, std::string order = "inorder");
 
     const T &operator*() const;
     ConstBinaryTreeIterator &operator++();
@@ -56,6 +58,8 @@ private:
     size_t current;
 
     void buildInOrder(ConstNodePtr node);
+    void buildPreOrder(ConstNodePtr node);
+    void buildPostOrder(ConstNodePtr node);
 };
 
 #include "../impl/iterators.tpp"
