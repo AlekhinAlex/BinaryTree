@@ -1,4 +1,3 @@
-// inc/iterators.hpp
 #pragma once
 
 #include <vector>

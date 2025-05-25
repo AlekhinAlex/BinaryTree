@@ -11,8 +11,7 @@ class BinaryTree
 {
 private:
     TreeNode<T> *root;
-
-    void threadedTraversalHelper(TreeNode<T> *node, std::vector<TreeNode<T> *> &nodes, const std::string &order);
+    bool isThreaded = false;
 
 public:
     BinaryTree();
@@ -50,7 +49,6 @@ public:
     bool hasValue(const T &value) const;
 
     void balance();
-    void inorderTraversal(TreeNode<T> *node, std::vector<TreeNode<T> *> &nodes);
     TreeNode<T> *buildBalancedTree(std::vector<TreeNode<T> *> &nodes, int start, int end);
     bool isBalanced() const;
     int isBalancedHelper(const TreeNode<T> *node) const;
@@ -58,6 +56,7 @@ public:
     // L - root - R
     void inorderTraversal(std::ostream &os = std::cout) const;
     void inorderTraversal(const TreeNode<T> *node, std::ostream &os = std::cout) const;
+    void inorderTraversal(TreeNode<T> *node, std::vector<TreeNode<T> *> &nodes);
 
     // root - L - R
     void preorderTraversal(std::ostream &os = std::cout) const;
@@ -85,10 +84,13 @@ public:
     T reduce(std::function<T(T, T)> func, T initial) const;
 
     void makeThreaded(const std::string &traversalOrder = "inorder");
-    void traverseThreaded(std::function<void(T)> visit) const;
+    void traverseThreaded(std::function<void(T)> visit = [](const T &val)
+                          { std::cout << val; }) const;
 
-    std::string serialize(const std::string &format = "default") const;
+    std::string serialize(const std::string &traversalOrder = "inorder") const;
     void deserialize(const std::string &data, const std::string &format = "default");
+
+    BinaryTree<T> *findByPath(const std::string &path) const;
 
     BinaryTree<T> *mergeImmutable(const BinaryTree<T> &other) const;
     void merge(const BinaryTree<T> &other);

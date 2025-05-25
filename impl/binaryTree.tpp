@@ -54,6 +54,7 @@ TreeNode<T> *BinaryTree<T>::findParent(TreeNode<T> *node) const
 template <typename T>
 void BinaryTree<T>::remove(const T &value)
 {
+    isThreaded = false;
     TreeNode<T> *nodeToRemove = search(value);
     if (!nodeToRemove)
     {
@@ -140,6 +141,7 @@ const TreeNode<T> *BinaryTree<T>::getRoot() const
 template <typename T>
 void BinaryTree<T>::insert(const T &value)
 {
+    isThreaded = false;
     if (!root)
     {
         root = new TreeNode<T>(value);
@@ -179,6 +181,7 @@ void BinaryTree<T>::insert(const T &value)
 template <typename T>
 void BinaryTree<T>::insert(const T &value, TreeNode<T> *startingRoot)
 {
+    isThreaded = false;
     if (!startingRoot)
     {
         if (!root)
@@ -311,6 +314,7 @@ bool BinaryTree<T>::isEmpty() const
 template <typename T>
 void BinaryTree<T>::clear()
 {
+    isThreaded = false;
     if (root)
     {
         delete root;
@@ -728,28 +732,87 @@ bool BinaryTree<T>::containsSubtree(const BinaryTree &other) const
 template <typename T>
 void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
 {
+    if (!root)
+    {
+        return;
+    }
+
+    for (auto it = begin(); it != end(); ++it)
+    {
+        if (*it)
+        {
+            (*it)->clearThreads();
+        }
+    }
+
     std::vector<TreeNode<T> *> nodes;
     for (auto it = begin(traversalOrder); it != end(traversalOrder); ++it)
     {
         nodes.push_back(search(*it));
     }
 
-    threadedTraversalHelper(root, nodes, traversalOrder);
-}
+    for (size_t i = 0; i < nodes.size(); i++)
+    {
+        if (!nodes[i]->getLeft())
+        {
+            if (i > 0)
+            {
+                nodes[i]->setLeftThread(nodes[i - 1]);
+            }
+        }
 
-template <typename T>
-void BinaryTree<T>::threadedTraversalHelper(TreeNode<T> *node, std::vector<TreeNode<T> *> &nodes, const std::string &order)
-{
-    // Implementation would depend on how you want to thread the tree
-    // This is a placeholder for the actual implementation
+        if (!nodes[i]->getRight())
+        {
+            if (i < nodes.size() - 1)
+            {
+                nodes[i]->setRightThread(nodes[i + 1]);
+            }
+        }
+    }
+
+    isThreaded = true;
 }
 
 template <typename T>
 void BinaryTree<T>::traverseThreaded(std::function<void(T)> visit) const
 {
-    for (auto it = cbegin(); it != cend(); ++it)
+    if (!isThreaded)
     {
-        visit(*it);
+        throw std::logic_error("Tree is not threaded");
+    }
+    if (!root)
+    {
+        return;
+    }
+    TreeNode<T> *current = root;
+    while (current && !current->hasLeftThread() && current->getLeft())
+    {
+        current = current->getLeft();
+    }
+
+    while (current)
+    {
+        visit(current->getData());
+
+        if (current->hasRightThread())
+        {
+            current = current->getRight();
+        }
+        else
+        {
+            if (current->getRight())
+            {
+                current = current->getRight();
+                while (!current->hasLeftThread() && current->getLeft())
+                {
+                    current = current->getLeft();
+                }
+            }
+            else
+            {
+                current = nullptr;
+            }
+        }
     }
 }
 
@@ -849,85 +912,75 @@ T BinaryTree<T>::reduce(std::function<T(T, T)> func, T initial) const
 }
 
 template <typename T>
-std::string BinaryTree<T>::serialize(const std::string &format) const
+std::string BinaryTree<T>::serialize(const std::string &traversalOrder) const
 {
-    std::ostringstream oss;
-
-    if (format == "json")
+    std::vector<TreeNode<T> *> nodes;
+    for (auto it = cbegin(traversalOrder); it != cend(traversalOrder); ++it)
     {
-        oss << "{ \"tree\": [";
-        bool first = true;
-        for (auto it = cbegin(); it != cend(); ++it)
-        {
-            if (!first)
-                oss << ", ";
-            oss << "\"" << *it << "\"";
-            first = false;
-        }
-        oss << "] }";
+        nodes.push_back(*it);
+    }
+
+    std::string output = "{ \"threaded\": \"";
+
+    if (traversalOrder == "preorder")
+    {
+        output += "Preorder: ";
+    }
+    else if (traversalOrder == "postorder")
+    {
+        output += "Postorder: ";
     }
     else
     {
-        // Default format - simple comma-separated values
-        bool first = true;
-        for (auto it = cbegin(); it != cend(); ++it)
-        {
-            if (!first)
-                oss << ",";
-            oss << *it;
-            first = false;
-        }
+        output += "Inorder: ";
     }
 
-    return oss.str();
+    for (const auto &node : nodes)
+    {
+        output += std::to_string(node->getData()) + " ";
+    }
+
+    output += "\" }";
+
+    return output;
 }
 
 template <typename T>
 void BinaryTree<T>::deserialize(const std::string &data, const std::string &format)
 {
     clear();
-
     std::istringstream iss(data);
     std::string token;
-
-    if (format == "json")
+    while (iss >> token)
     {
-        // Simple JSON parsing (would need a more robust parser for real use)
-        std::string jsonData = data;
-        size_t start = jsonData.find('[');
-        size_t end = jsonData.find(']');
-
-        if (start != std::string::npos && end != std::string::npos)
+        if (token == "{")
         {
-            std::string values = jsonData.substr(start + 1, end - start - 1);
-            std::istringstream valueStream(values);
-            std::string item;
-
-            while (std::getline(valueStream, item, ','))
-            {
-                item.erase(0, item.find_first_not_of(" \""));
-                item.erase(item.find_last_not_of(" \"") + 1);
-
-                std::istringstream converter(item);
-                T value;
-                if (converter >> value)
-                {
-                    insert(value);
-                }
-            }
+            continue;
+        }
+        else if (token == "}")
+        {
+            break;
+        }
+        else if (token == "null")
+        {
+            continue;
+        }
+        else
+        {
+            T value = static_cast<T>(std::stoi(token));
+            insert(value);
+        }
+    }
+    if (format == "inorder" || format == "preorder" || format == "postorder")
+    {
+        for (auto it = cbegin(format); it != cend(format); ++it)
+        {
+            insert(*it);
         }
     }
     else
     {
-        while (std::getline(iss, token, ','))
-        {
-            std::istringstream converter(token);
-            T value;
-            if (converter >> value)
-            {
-                insert(value);
-            }
-        }
+        throw std::invalid_argument("Unsupported format: " + format);
     }
 }
 
@@ -936,4 +989,39 @@ std::ostream &operator<<(std::ostream &os, const BinaryTree<T> &tree)
 {
     tree.print(os);
     return os;
+}
+
+template <typename T>
+BinaryTree<T> *BinaryTree<T>::findByPath(const std::string &path) const
+{
+    TreeNode<T> *current = root;
+    for (char dir : path)
+    {
+        if (!current)
+            return nullptr;
+        if (dir == 'L' || dir == 'l')
+        {
+            if (current->hasLeftThread())
+                return nullptr;
+            current = current->getLeft();
+        }
+        else if (dir == 'R' || dir == 'r')
+        {
+            if (current->hasRightThread())
+                return nullptr;
+            current = current->getRight();
+        }
+        else
+        {
+            return nullptr;
+        }
+    }
+    if (!current)
+    {
+        return nullptr;
+    }
+
+    BinaryTree<T> *subtree = new BinaryTree<T>();
+    subtree->root = current->clone();
+    return subtree;
 }

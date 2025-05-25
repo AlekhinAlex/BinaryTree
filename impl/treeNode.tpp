@@ -3,12 +3,11 @@
 template <typename T>
 TreeNode<T>::~TreeNode<T>()
 {
-    if (left)
+    if (left && !isLeftThread)
     {
         delete left;
     }
-
-    if (right)
+    if (right && !isRightThread)
     {
         delete right;
     }
@@ -60,12 +59,14 @@ template <typename T>
 void TreeNode<T>::setLeft(TreeNode<T> *left)
 {
     this->left = left;
+    isLeftThread = false;
 }
 
 template <typename T>
 void TreeNode<T>::setRight(TreeNode<T> *right)
 {
     this->right = right;
+    isRightThread = false;
 }
 
 template <typename T>
@@ -156,4 +157,37 @@ TreeNode<T> &TreeNode<T>::operator=(const TreeNode &other)
         right = newRight;
     }
     return *this;
+}
+
+template <typename T>
+bool TreeNode<T>::hasLeftThread() const
+{
+    return isLeftThread;
+}
+
+template <typename T>
+bool TreeNode<T>::hasRightThread() const
+{
+    return isRightThread;
+}
+
+template <typename T>
+void TreeNode<T>::setLeftThread(TreeNode *node)
+{
+    left = node;
+    isLeftThread = true;
+}
+
+template <typename T>
+void TreeNode<T>::setRightThread(TreeNode *node)
+{
+    right = node;
+    isRightThread = true;
+}
+
+template <typename T>
+void TreeNode<T>::clearThreads()
+{
+    isLeftThread = false;
+    isRightThread = false;
 }

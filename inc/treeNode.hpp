@@ -8,6 +8,9 @@ private:
     TreeNode *left;
     TreeNode *right;
 
+    bool isLeftThread;
+    bool isRightThread;
+
 public:
     TreeNode() : data(T()), left(nullptr), right(nullptr) {}
     TreeNode(T value) : data(value), left(nullptr), right(nullptr) {}
@@ -38,6 +41,13 @@ public:
     bool operator<(const TreeNode &other) const;
     bool operator>(const TreeNode &other) const;
     TreeNode &operator=(const TreeNode &other);
+
+public:
+    bool hasLeftThread() const;
+    bool hasRightThread() const;
+    void setLeftThread(TreeNode *node);
+    void setRightThread(TreeNode *node);
+    void clearThreads();
 };
 
 #include "../impl/treeNode.tpp"
