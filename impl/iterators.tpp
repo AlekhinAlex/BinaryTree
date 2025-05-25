@@ -59,6 +59,10 @@ BinaryTreeIterator<T>::BinaryTreeIterator(NodePtr root, std::string order) : cur
 template <typename T>
 T &BinaryTreeIterator<T>::operator*()
 {
+    if (nodes.empty() || current >= nodes.size())
+    {
+        throw std::out_of_range("BinaryTreeIterator dereference out of range");
+    }
     return nodes[current]->getData();
 }
 
@@ -179,6 +183,10 @@ ConstBinaryTreeIterator<T>::ConstBinaryTreeIterator(ConstNodePtr root, std::stri
 template <typename T>
 const T &ConstBinaryTreeIterator<T>::operator*() const
 {
+    if (nodes.empty() || current >= nodes.size())
+    {
+        throw std::out_of_range("ConstBinaryTreeIterator dereference out of range");
+    }
     return nodes[current]->getData();
 }
 

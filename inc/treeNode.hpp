@@ -11,10 +11,18 @@ private:
     bool isLeftThread;
     bool isRightThread;
 
+    int height = 0;
+
 public:
-    TreeNode() : data(T()), left(nullptr), right(nullptr) {}
-    TreeNode(T value) : data(value), left(nullptr), right(nullptr) {}
+    TreeNode() : data(T()), left(nullptr), right(nullptr), isLeftThread(false), isRightThread(false), height(0) {}
+    TreeNode(T value) : data(value), left(nullptr), right(nullptr), isLeftThread(false), isRightThread(false), height(0) {}
+
     ~TreeNode();
+
+    TreeNode<T> *getParent(TreeNode<T> *root) const;
+
+    const int getHeight() const;
+    void setHeight(int h);
 
     const T &getData() const;
     T &getData();

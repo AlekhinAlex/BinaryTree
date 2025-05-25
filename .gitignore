@@ -3,6 +3,7 @@
 
 .vscode/
 build/
+venv/
 
 # Compiled Object files
 *.slo

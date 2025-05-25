@@ -9,7 +9,7 @@
 template <typename T>
 class BinaryTree
 {
-private:
+protected:
     TreeNode<T> *root;
     bool isThreaded = false;
 
@@ -34,9 +34,9 @@ public:
     void getMinHelper(TreeNode<T> *node, TreeNode<T> *&min) const;
 
     void insert(const T &value, TreeNode<T> *root); //? Do I need this
-    void insert(const T &value);
+    virtual void insert(const T &value);
 
-    void remove(const T &value);
+    virtual void remove(const T &value);
 
     const TreeNode<T> *search(const T &value) const;
     TreeNode<T> *search(const T &value);
@@ -50,7 +50,7 @@ public:
 
     void balance();
     TreeNode<T> *buildBalancedTree(std::vector<TreeNode<T> *> &nodes, int start, int end);
-    bool isBalanced() const;
+    virtual bool isBalanced() const;
     int isBalancedHelper(const TreeNode<T> *node) const;
 
     // L - root - R
@@ -70,7 +70,6 @@ public:
     bool containsSubtree(const BinaryTree &sub) const;
 
     int getHeight() const;
-    int getHeightHelper(const TreeNode<T> *node) const;
     bool isEmpty() const;
 
     void clear();
@@ -106,6 +105,9 @@ public:
     Iterator end(std::string order = "inorder");
     ConstIterator cbegin(std::string order = "inorder") const;
     ConstIterator cend(std::string order = "inorder") const;
+
+    ConstIterator cbegin(const TreeNode<T> *node, std::string order = "inorder") const;
+    ConstIterator cend(const TreeNode<T> *node, std::string order = "inorder") const;
 };
 
 #include "../impl/binaryTree.tpp"

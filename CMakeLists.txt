@@ -1,4 +1,3 @@
-
 cmake_minimum_required(VERSION 3.10)
 project(lab4)
 
@@ -10,14 +9,15 @@ file(GLOB HEADERS "inc/*.hpp")
 file(GLOB TYPES "inc/types/*.hpp")
 file(GLOB IMPLEMENTATIONS "impl/*.tpp")
 file(GLOB TEST_HEADERS "tests/*.hpp")
-file(GLOB TEST_SOURCE "tests/*.cpp")
+file(GLOB TEST_SOURCE "tests/test_*.cpp")
 
+# Exclude test_performance_big.cpp from regular tests
+list(REMOVE_ITEM TEST_SOURCE "${CMAKE_CURRENT_SOURCE_DIR}/tests/test_performance_big.cpp")
 
 find_package(GTest REQUIRED)
 include(GoogleTest)
 
 include_directories(${GTEST_INCLUDE_DIRS} inc impl)
-
 
 add_executable(tests
     ${TEST_SOURCE}
@@ -26,11 +26,12 @@ add_executable(tests
     ${TYPES}
 )
 
-add_executable(main
-    ${SOURCES} 
+add_executable(test_performance_big
+    tests/test_performance_big.cpp
     ${HEADERS}
     ${IMPLEMENTATIONS}
     ${TYPES}
 )
 
 target_link_libraries(tests GTest::GTest GTest::Main pthread)
+target_link_libraries(test_performance_big pthread)

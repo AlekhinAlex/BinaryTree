@@ -1,0 +1,3 @@
+size,binarytree_insert,avltree_insert
+10000,0.00170517,0.00558742
+20000,0.00377288,0.011908

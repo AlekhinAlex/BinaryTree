@@ -1,4 +1,5 @@
 #include "../inc/treeNode.hpp"
+#include <algorithm> // For std::max
 
 template <typename T>
 TreeNode<T>::~TreeNode<T>()
@@ -11,6 +12,18 @@ TreeNode<T>::~TreeNode<T>()
     {
         delete right;
     }
+}
+
+template <typename T>
+const int TreeNode<T>::getHeight() const
+{
+    return height;
+}
+
+template <typename T>
+void TreeNode<T>::setHeight(int h)
+{
+    height = h;
 }
 
 template <typename T>
@@ -60,6 +73,9 @@ void TreeNode<T>::setLeft(TreeNode<T> *left)
 {
     this->left = left;
     isLeftThread = false;
+    height = 1 + std::max(
+                     left ? left->height : -1,
+                     right ? right->height : -1);
 }
 
 template <typename T>
@@ -67,6 +83,9 @@ void TreeNode<T>::setRight(TreeNode<T> *right)
 {
     this->right = right;
     isRightThread = false;
+    height = 1 + std::max(
+                     left ? left->height : -1,
+                     right ? right->height : -1);
 }
 
 template <typename T>
@@ -93,6 +112,7 @@ TreeNode<T> *TreeNode<T>::clone() const
     {
         newNode->right = right->clone();
     }
+    newNode->height = this->height; // Preserve height property
     return newNode;
 }
 
@@ -190,4 +210,25 @@ void TreeNode<T>::clearThreads()
 {
     isLeftThread = false;
     isRightThread = false;
+}
+
+template <typename T>
+TreeNode<T> *TreeNode<T>::getParent(TreeNode<T> *root) const
+{
+    if (!root)
+        return nullptr;
+
+    TreeNode<T> *current = root;
+    TreeNode<T> *parent = nullptr;
+
+    while (current && current != this)
+    {
+        parent = current;
+        if (this->data < current->data)
+            current = current->getLeft();
+        else
+            current = current->getRight();
+    }
+
+    return (current == this) ? parent : nullptr;
 }
