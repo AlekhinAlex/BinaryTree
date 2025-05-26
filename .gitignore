@@ -4,6 +4,8 @@
 .vscode/
 build/
 venv/
+.venv
+node_modules/
 
 # Compiled Object files
 *.slo

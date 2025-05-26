@@ -11,13 +11,13 @@ public:
 
     void insert(const T &value) override;
     void remove(const T &value) override;
-    bool isBalanced() const override { return true; } // AVL trees are always balanced by definition
+    bool isBalanced() const override { return true; }
+    int getHeight(TreeNode<T> *node) const;
 
 private:
     TreeNode<T> *insert(TreeNode<T> *node, const T &value);
     TreeNode<T> *remove(TreeNode<T> *node, const T &value);
 
-    int getHeight(TreeNode<T> *node) const;
     int getBalance(TreeNode<T> *node) const;
 
     TreeNode<T> *rotateLeft(TreeNode<T> *x);

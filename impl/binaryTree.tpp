@@ -608,13 +608,35 @@ TreeNode<T> *BinaryTree<T>::buildBalancedTree(std::vector<TreeNode<T> *> &nodes,
 }
 
 template <typename T>
+TreeNode<T> *BinaryTree<T>::buildBalancedTreeFromValues(const std::vector<T> &values, int start, int end)
+{
+    if (start > end)
+        return nullptr;
+    int mid = start + (end - start) / 2;
+    TreeNode<T> *node = new TreeNode<T>(values[mid]);
+    node->setLeft(buildBalancedTreeFromValues(values, start, mid - 1));
+    node->setRight(buildBalancedTreeFromValues(values, mid + 1, end));
+    return node;
+}
+
+template <typename T>
 void BinaryTree<T>::balance()
 {
     if (!root)
         return;
-    std::vector<TreeNode<T> *> nodes;
-    inorderTraversal(root, nodes);
-    root = buildBalancedTree(nodes, 0, nodes.size() - 1);
+    std::vector<T> values;
+    // Collect values in inorder
+    std::function<void(TreeNode<T> *)> inorder = [&](TreeNode<T> *node)
+    {
+        if (!node)
+            return;
+        inorder(node->getLeft());
+        values.push_back(node->getData());
+        inorder(node->getRight());
+    };
+    inorder(root);
+    clear();
+    root = buildBalancedTreeFromValues(values, 0, values.size() - 1);
 }
 
 template <typename T>
@@ -945,10 +967,53 @@ T BinaryTree<T>::reduce(std::function<T(T, T)> func, T initial) const
 template <typename T>
 std::string BinaryTree<T>::serialize(const std::string &traversalOrder) const
 {
+    // For level-order traversal (needed for visualization)
     std::vector<T> values;
-    for (auto it = cbegin(traversalOrder); it != cend(traversalOrder); ++it)
+    std::vector<bool> isNull;
+
+    if (!root)
     {
-        values.push_back(*it);
+        std::string output = "{\n";
+        output += "  \"type\": \"binary_tree\",\n";
+        output += "  \"traversal\": \"" + traversalOrder + "\",\n";
+        output += "  \"values\": [],\n";
+        output += "  \"size\": 0,\n";
+        output += "  \"isThreaded\": " + std::string(isThreaded ? "true" : "false") + "\n";
+        output += "}";
+        return output;
+    }
+
+    // Use level-order traversal for visualization
+    std::queue<TreeNode<T> *> q;
+    q.push(root);
+
+    while (!q.empty())
+    {
+        TreeNode<T> *current = q.front();
+        q.pop();
+
+        if (current)
+        {
+            values.push_back(current->getData());
+            isNull.push_back(false);
+
+            // Add children (or null placeholders)
+            q.push(current->getLeft());
+            q.push(current->getRight());
+        }
+        else
+        {
+            // Add null placeholder
+            values.push_back(T());
+            isNull.push_back(true);
+        }
+    }
+
+    // Remove trailing nulls
+    while (!values.empty() && isNull.back())
+    {
+        values.pop_back();
+        isNull.pop_back();
     }
 
     std::string output = "{\n";
@@ -958,9 +1023,17 @@ std::string BinaryTree<T>::serialize(const std::string &traversalOrder) const
 
     for (size_t i = 0; i < values.size(); i++)
     {
-        std::stringstream ss;
-        ss << values[i];
-        output += "\"" + ss.str() + "\"";
+        if (isNull[i])
+        {
+            output += "\"null\"";
+        }
+        else
+        {
+            std::stringstream ss;
+            ss << values[i];
+            output += "\"" + ss.str() + "\"";
+        }
+
         if (i < values.size() - 1)
         {
             output += ", ";

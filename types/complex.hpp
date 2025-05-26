@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include <cmath>
+#include <string>
+#include <sstream>
 
 class Complex
 {
@@ -60,6 +62,12 @@ public:
     {
         return magnitude() > other.magnitude();
     }
+    
+    // For serialization
+    friend std::ostream& operator<<(std::ostream& os, const Complex& c);
+    
+    // For deserialization
+    friend std::istream& operator>>(std::istream& is, Complex& c);
 };
 
 inline std::ostream &operator<<(std::ostream &os, const Complex &c)
@@ -73,4 +81,14 @@ inline std::ostream &operator<<(std::ostream &os, const Complex &c)
         os << c.getReal() << c.getImag() << "i";
     }
     return os;
+}
+
+inline std::istream& operator>>(std::istream& is, Complex& c)
+{
+    double real, imag;
+    char plus, i;
+    is >> real >> plus >> imag >> i;
+    c.setReal(real);
+    c.setImag(imag);
+    return is;
 }

@@ -109,6 +109,9 @@ public:
     ConstIterator cbegin(const TreeNode<T> *node, std::string order = "inorder") const;
     ConstIterator cend(const TreeNode<T> *node, std::string order = "inorder") const;
 
+protected:
+    TreeNode<T> *buildBalancedTreeFromValues(const std::vector<T> &values, int start, int end);
+
 private:
     std::string threadedOrder;
 };
