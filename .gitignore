@@ -85,3 +85,7 @@ Thumbs.db
 
 # Logs
 *.log
+
+# Exclude web/dist from gitignore to allow GitHub Pages deployment
+!web/dist/
+!web/dist/**/*

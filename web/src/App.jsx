@@ -51,12 +51,12 @@ function App() {
         if (tree && value) {
             try {
                 let insertValue = value;
-                
+
                 // If it's a string and we're dealing with integer trees
                 if (typeof value === 'string' && (treeType === 'AVLTreeInt' || treeType === 'BinaryTreeInt')) {
                     insertValue = parseInt(value, 10);
                 }
-                
+
                 // For BinaryTree types, use level-order insertion
                 if (treeType.startsWith('BinaryTree')) {
                     // Insert at root level for level-order insertion
@@ -78,12 +78,12 @@ function App() {
         if (tree && value) {
             try {
                 let removeVal = value;
-                
+
                 // If it's a string and we're dealing with integer trees
                 if (typeof value === 'string' && (treeType === 'AVLTreeInt' || treeType === 'BinaryTreeInt')) {
                     removeVal = parseInt(value, 10);
                 }
-                
+
                 tree.remove(removeVal);
                 updateSerialized();
                 setRemoveValue('');
@@ -98,12 +98,12 @@ function App() {
         if (tree && value) {
             try {
                 let searchVal = value;
-                
+
                 // If it's a string and we're dealing with integer trees
                 if (typeof value === 'string' && (treeType === 'AVLTreeInt' || treeType === 'BinaryTreeInt')) {
                     searchVal = parseInt(value, 10);
                 }
-                
+
                 const found = tree.hasValue ? tree.hasValue(searchVal) : tree.find(searchVal);
                 setSearchResult(found);
                 setOperationMsg(found ? 'Value found' : 'Value not found');
@@ -243,13 +243,13 @@ function App() {
 
                         {/* Show appropriate input based on tree type */}
                         {treeType.includes('Complex') ? (
-                            <ComplexInput 
+                            <ComplexInput
                                 onInsert={handleInsert}
                                 onRemove={handleRemove}
                                 onSearch={handleSearch}
                             />
                         ) : treeType.includes('Person') ? (
-                            <PersonInput 
+                            <PersonInput
                                 onInsert={handleInsert}
                                 onRemove={handleRemove}
                                 onSearch={handleSearch}
@@ -315,10 +315,10 @@ function App() {
                         </AnimatePresence>
 
                         <TreeView serializedTree={serializedTree} />
-                        
+
                         {/* Add functional operations component */}
-                        <FunctionalOperations 
-                            tree={tree} 
+                        <FunctionalOperations
+                            tree={tree}
                             updateTree={(newTree) => {
                                 setTree(newTree);
                                 updateSerialized(newTree);
