@@ -62,10 +62,20 @@ The results are saved in CSV files and visualized using the Python script `plot_
 
 #### Example Graphs
 1. **Insertion Performance Comparison**:
+
    ![Performance Comparison](tests/performance_comparison.png)
 
 2. **Logarithmic Scale**:
+
    ![Logarithmic Scale](tests/performance_log_scale.png)
+
+3. **Granular Performance Test**:
+
+   ![Granular Performance](tests/granular_performance.png)
+
+4. **Very Large Performance Test**:
+
+   ![Very Large Performance](tests/very_large_performance.png)
 
 ### Unit Tests
 - Coverage of basic tree operations (insertion, deletion, search).

@@ -1,5 +1,6 @@
 #include "../inc/treeNode.hpp"
 #include <algorithm> // For std::max
+#include <stdexcept> // For std::logic_error
 
 template <typename T>
 TreeNode<T>::~TreeNode<T>()
@@ -231,4 +232,14 @@ TreeNode<T> *TreeNode<T>::getParent(TreeNode<T> *root) const
     }
 
     return (current == this) ? parent : nullptr;
+}
+
+template <typename T>
+TreeNode<T> *TreeNode<T>::getRightThread() const
+{
+    if (!isRightThread)
+    {
+        throw std::logic_error("This node does not have a right thread.");
+    }
+    return right;
 }

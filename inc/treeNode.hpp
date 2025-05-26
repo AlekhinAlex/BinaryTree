@@ -5,8 +5,8 @@ class TreeNode
 {
 private:
     T data;
-    TreeNode *left;
-    TreeNode *right;
+    TreeNode<T> *left;
+    TreeNode<T> *right;
 
     bool isLeftThread;
     bool isRightThread;
@@ -27,34 +27,35 @@ public:
     const T &getData() const;
     T &getData();
 
-    const TreeNode *getLeft() const;
-    TreeNode *getLeft();
+    const TreeNode<T> *getLeft() const;
+    TreeNode<T> *getLeft();
 
-    const TreeNode *getRight() const;
-    TreeNode *getRight();
+    const TreeNode<T> *getRight() const;
+    TreeNode<T> *getRight();
 
-    TreeNode *getMax() const;
-    TreeNode *getMin() const;
+    TreeNode<T> *getMax() const;
+    TreeNode<T> *getMin() const;
 
     void setData(T value);
-    void setLeft(TreeNode *node);
-    void setRight(TreeNode *node);
+    void setLeft(TreeNode<T> *node);
+    void setRight(TreeNode<T> *node);
 
     bool isLeaf() const;
     bool hasChildren() const;
-    TreeNode *clone() const;
+    TreeNode<T> *clone() const;
 
-    bool operator==(const TreeNode &other) const;
-    bool operator!=(const TreeNode &other) const;
-    bool operator<(const TreeNode &other) const;
-    bool operator>(const TreeNode &other) const;
-    TreeNode &operator=(const TreeNode &other);
+    bool operator==(const TreeNode<T> &other) const;
+    bool operator!=(const TreeNode<T> &other) const;
+    bool operator<(const TreeNode<T> &other) const;
+    bool operator>(const TreeNode<T> &other) const;
+    TreeNode<T> &operator=(const TreeNode<T> &other);
 
 public:
     bool hasLeftThread() const;
     bool hasRightThread() const;
-    void setLeftThread(TreeNode *node);
-    void setRightThread(TreeNode *node);
+    TreeNode<T> *getRightThread() const;
+    void setLeftThread(TreeNode<T> *node);
+    void setRightThread(TreeNode<T> *node);
     void clearThreads();
 };
 

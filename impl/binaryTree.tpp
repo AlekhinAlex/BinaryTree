@@ -711,21 +711,19 @@ void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
 {
     if (!root)
     {
-        isThreaded = true; // Mark the tree as threaded even if it's empty
+        isThreaded = true;
+        threadedOrder = traversalOrder;
         return;
     }
 
     // Clear all existing threads
     std::queue<TreeNode<T> *> q;
     q.push(root);
-
     while (!q.empty())
     {
         TreeNode<T> *current = q.front();
         q.pop();
-
         current->clearThreads();
-
         if (current->getLeft())
             q.push(current->getLeft());
         if (current->getRight())
@@ -741,42 +739,53 @@ void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
             if (!node)
                 return;
             nodes.push_back(node);
-            if (node->getLeft() && !node->hasLeftThread())
+            if (!node->hasLeftThread())
                 preorder(node->getLeft());
-            if (node->getRight() && !node->hasRightThread())
+            if (!node->hasRightThread())
                 preorder(node->getRight());
         };
         preorder(root);
     }
     else if (traversalOrder == "postorder")
     {
-        // ...existing code for postorder...
+        std::function<void(TreeNode<T> *)> postorder = [&](TreeNode<T> *node)
+        {
+            if (!node)
+                return;
+            if (!node->hasLeftThread())
+                postorder(node->getLeft());
+            if (!node->hasRightThread())
+                postorder(node->getRight());
+            nodes.push_back(node);
+        };
+        postorder(root);
     }
-    else
+    else // inorder
     {
-        // ...existing code for inorder...
+        std::function<void(TreeNode<T> *)> inorder = [&](TreeNode<T> *node)
+        {
+            if (!node)
+                return;
+            if (!node->hasLeftThread())
+                inorder(node->getLeft());
+            nodes.push_back(node);
+            if (!node->hasRightThread())
+                inorder(node->getRight());
+        };
+        inorder(root);
     }
 
     // Create threads
-    for (size_t i = 0; i < nodes.size(); i++)
+    for (size_t i = 0; i < nodes.size() - 1; i++)
     {
-        if (i > 0)
+        if (!nodes[i]->getRight() || nodes[i]->hasRightThread())
         {
-            if (!nodes[i]->getLeft())
-            {
-                nodes[i]->setLeftThread(nodes[i - 1]);
-            }
-        }
-        if (i < nodes.size() - 1)
-        {
-            if (!nodes[i]->getRight())
-            {
-                nodes[i]->setRightThread(nodes[i + 1]);
-            }
+            nodes[i]->setRightThread(nodes[i + 1]);
         }
     }
 
     isThreaded = true;
+    threadedOrder = traversalOrder;
 }
 
 template <typename T>
@@ -787,28 +796,63 @@ void BinaryTree<T>::traverseThreaded(std::function<void(T)> visit) const
     if (!root)
         return;
 
-    // Simple implementation that just collects all nodes in the tree
-    std::queue<TreeNode<T> *> q;
-    q.push(const_cast<TreeNode<T> *>(root));
-    std::vector<T> values;
+    TreeNode<T> *current = const_cast<TreeNode<T> *>(root);
 
-    while (!q.empty())
+    if (threadedOrder == "inorder")
     {
-        TreeNode<T> *current = q.front();
-        q.pop();
+        while (current && current->getLeft() && !current->hasLeftThread())
+            current = current->getLeft();
 
-        values.push_back(current->getData());
+        while (current)
+        {
+            visit(current->getData());
 
-        if (current->getLeft() && !current->hasLeftThread())
-            q.push(current->getLeft());
-        if (current->getRight() && !current->hasRightThread())
-            q.push(current->getRight());
+            if (current->hasRightThread())
+                current = current->getRightThread();
+            else
+            {
+                current = current->getRight();
+                while (current && current->getLeft() && !current->hasLeftThread())
+                    current = current->getLeft();
+            }
+        }
     }
-
-    // Visit each node
-    for (const auto &value : values)
+    else if (threadedOrder == "preorder")
     {
-        visit(value);
+        while (current)
+        {
+            visit(current->getData());
+
+            if (current->getLeft() && !current->hasLeftThread())
+                current = current->getLeft();
+            else if (current->hasRightThread())
+                current = current->getRightThread();
+            else
+                current = current->getRight();
+        }
+    }
+    else if (threadedOrder == "postorder")
+    {
+        // For postorder, we'll use the vector of nodes that was created during threading
+        // This is much simpler than trying to navigate the threads directly
+        std::vector<TreeNode<T> *> nodes;
+        std::function<void(TreeNode<T> *)> collectNodes = [&](TreeNode<T> *node)
+        {
+            if (!node)
+                return;
+            if (!node->hasLeftThread())
+                collectNodes(node->getLeft());
+            if (!node->hasRightThread())
+                collectNodes(node->getRight());
+            nodes.push_back(node);
+        };
+        collectNodes(const_cast<TreeNode<T> *>(root));
+
+        // Now simply visit the nodes in the collected order
+        for (auto node : nodes)
+        {
+            visit(node->getData());
+        }
     }
 }
 
@@ -918,29 +962,26 @@ std::string BinaryTree<T>::serialize(const std::string &traversalOrder) const
         values.push_back(*it);
     }
 
-    std::string output = "{ \"threaded\": \"";
+    std::string output = "{\n";
+    output += "  \"type\": \"binary_tree\",\n";
+    output += "  \"traversal\": \"" + traversalOrder + "\",\n";
+    output += "  \"values\": [";
 
-    if (traversalOrder == "preorder")
-    {
-        output += "Preorder: ";
-    }
-    else if (traversalOrder == "postorder")
-    {
-        output += "Postorder: ";
-    }
-    else
-    {
-        output += "Inorder: ";
-    }
-
-    for (const auto &value : values)
+    for (size_t i = 0; i < values.size(); i++)
     {
         std::stringstream ss;
-        ss << value;
-        output += ss.str() + " ";
+        ss << values[i];
+        output += "\"" + ss.str() + "\"";
+        if (i < values.size() - 1)
+        {
+            output += ", ";
+        }
     }
 
-    output += "\" }";
+    output += "],\n";
+    output += "  \"size\": " + std::to_string(values.size()) + ",\n";
+    output += "  \"isThreaded\": " + std::string(isThreaded ? "true" : "false") + "\n";
+    output += "}";
 
     return output;
 }

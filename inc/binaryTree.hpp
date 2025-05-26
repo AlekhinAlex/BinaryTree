@@ -108,6 +108,9 @@ public:
 
     ConstIterator cbegin(const TreeNode<T> *node, std::string order = "inorder") const;
     ConstIterator cend(const TreeNode<T> *node, std::string order = "inorder") const;
+
+private:
+    std::string threadedOrder;
 };
 
 #include "../impl/binaryTree.tpp"
