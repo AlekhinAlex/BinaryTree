@@ -1,7 +1,6 @@
 #include "../inc/AVLTree.hpp"
 #include <algorithm>
 
-// Forward declaration to resolve circular dependency
 template <typename T>
 class BinaryTree;
 
@@ -30,7 +29,6 @@ TreeNode<T> *AVLTree<T>::rotateLeft(TreeNode<T> *x)
     y->setLeft(x);
     x->setRight(T2);
 
-    // Update heights
     x->setHeight(1 + std::max(getHeight(x->getLeft()), getHeight(x->getRight())));
     y->setHeight(1 + std::max(getHeight(y->getLeft()), getHeight(y->getRight())));
 
@@ -46,7 +44,6 @@ TreeNode<T> *AVLTree<T>::rotateRight(TreeNode<T> *y)
     x->setRight(y);
     y->setLeft(T2);
 
-    // Update heights
     y->setHeight(1 + std::max(getHeight(y->getLeft()), getHeight(y->getRight())));
     x->setHeight(1 + std::max(getHeight(x->getLeft()), getHeight(x->getRight())));
 
@@ -92,30 +89,25 @@ TreeNode<T> *AVLTree<T>::insert(TreeNode<T> *node, const T &value)
         return node;
     }
 
-    // Update height of this node
     node->setHeight(1 + std::max(getHeight(node->getLeft()), getHeight(node->getRight())));
 
     int balance = getBalance(node);
 
-    // Left Left Case
     if (balance > 1 && node->getLeft() && value < node->getLeft()->getData())
     {
         return rotateRight(node);
     }
 
-    // Right Right Case
     if (balance < -1 && node->getRight() && value > node->getRight()->getData())
     {
         return rotateLeft(node);
     }
 
-    // Left Right Case
     if (balance > 1 && node->getLeft() && value > node->getLeft()->getData())
     {
         return rotateLeftRight(node);
     }
 
-    // Right Left Case
     if (balance < -1 && node->getRight() && value < node->getRight()->getData())
     {
         return rotateRightLeft(node);
@@ -149,20 +141,16 @@ TreeNode<T> *AVLTree<T>::remove(TreeNode<T> *node, const T &value)
     }
     else
     {
-        // Node with only one child or no child
         if (!node->getLeft() || !node->getRight())
         {
             TreeNode<T> *temp = node->getLeft() ? node->getLeft() : node->getRight();
             if (!temp)
             {
-                // No child case
                 temp = node;
                 node = nullptr;
             }
             else
             {
-                // One child case
-                // Copy the contents of the non-empty child
                 node->setData(temp->getData());
                 node->setLeft(temp->getLeft());
                 node->setRight(temp->getRight());
@@ -171,7 +159,6 @@ TreeNode<T> *AVLTree<T>::remove(TreeNode<T> *node, const T &value)
         }
         else
         {
-            // Node with two children
             TreeNode<T> *temp = node->getRight();
             while (temp->getLeft())
                 temp = temp->getLeft();
@@ -185,30 +172,25 @@ TreeNode<T> *AVLTree<T>::remove(TreeNode<T> *node, const T &value)
         return nullptr;
     }
 
-    // Update height
     node->setHeight(1 + std::max(getHeight(node->getLeft()), getHeight(node->getRight())));
 
     int balance = getBalance(node);
 
-    // Left Left Case
     if (balance > 1 && node->getLeft() && getBalance(node->getLeft()) >= 0)
     {
         return rotateRight(node);
     }
 
-    // Left Right Case
     if (balance > 1 && node->getLeft() && getBalance(node->getLeft()) < 0)
     {
         return rotateLeftRight(node);
     }
 
-    // Right Right Case
     if (balance < -1 && node->getRight() && getBalance(node->getRight()) <= 0)
     {
         return rotateLeft(node);
     }
 
-    // Right Left Case
     if (balance < -1 && node->getRight() && getBalance(node->getRight()) > 0)
     {
         return rotateRightLeft(node);

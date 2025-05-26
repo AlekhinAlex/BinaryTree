@@ -1,8 +1,8 @@
 #include "../inc/binaryTree.hpp"
 #include <queue>
-#include <sstream>   // For std::istringstream
-#include <algorithm> // For std::abs and std::max
-#include <typeinfo>  // For typeid
+#include <sstream>
+#include <algorithm>
+#include <typeinfo>
 #include <unordered_set>
 
 template <typename T>
@@ -39,7 +39,6 @@ void BinaryTree<T>::remove(const T &value)
         throw std::runtime_error("Value not found");
     }
 
-    // Find the deepest rightmost node
     std::queue<TreeNode<T> *> q;
     TreeNode<T> *temp = nullptr;
     q.push(root);
@@ -57,7 +56,6 @@ void BinaryTree<T>::remove(const T &value)
         }
     }
 
-    // Find parent of the deepest node
     TreeNode<T> *parent = findParent(temp);
 
     if (nodeToRemove == temp)
@@ -121,7 +119,6 @@ void BinaryTree<T>::insert(const T &value)
 {
     if (isThreaded)
     {
-        // Clear all threads in the tree
         std::queue<TreeNode<T> *> q;
         if (root)
         {
@@ -131,13 +128,11 @@ void BinaryTree<T>::insert(const T &value)
                 TreeNode<T> *current = q.front();
                 q.pop();
 
-                // Store real child pointers before clearing threads
                 TreeNode<T> *leftChild = current->hasLeftThread() ? nullptr : current->getLeft();
                 TreeNode<T> *rightChild = current->hasRightThread() ? nullptr : current->getRight();
 
                 current->clearThreads();
 
-                // Only push actual child nodes to the queue
                 if (leftChild)
                     q.push(leftChild);
                 if (rightChild)
@@ -716,7 +711,6 @@ void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
         return;
     }
 
-    // Clear all existing threads
     std::queue<TreeNode<T> *> q;
     q.push(root);
     while (!q.empty())
@@ -730,7 +724,6 @@ void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
             q.push(current->getRight());
     }
 
-    // Collect nodes in the specified traversal order
     std::vector<TreeNode<T> *> nodes;
     if (traversalOrder == "preorder")
     {
@@ -760,7 +753,7 @@ void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
         };
         postorder(root);
     }
-    else // inorder
+    else
     {
         std::function<void(TreeNode<T> *)> inorder = [&](TreeNode<T> *node)
         {
@@ -775,7 +768,6 @@ void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
         inorder(root);
     }
 
-    // Create threads
     for (size_t i = 0; i < nodes.size() - 1; i++)
     {
         if (!nodes[i]->getRight() || nodes[i]->hasRightThread())
@@ -833,8 +825,6 @@ void BinaryTree<T>::traverseThreaded(std::function<void(T)> visit) const
     }
     else if (threadedOrder == "postorder")
     {
-        // For postorder, we'll use the vector of nodes that was created during threading
-        // This is much simpler than trying to navigate the threads directly
         std::vector<TreeNode<T> *> nodes;
         std::function<void(TreeNode<T> *)> collectNodes = [&](TreeNode<T> *node)
         {
@@ -848,7 +838,6 @@ void BinaryTree<T>::traverseThreaded(std::function<void(T)> visit) const
         };
         collectNodes(const_cast<TreeNode<T> *>(root));
 
-        // Now simply visit the nodes in the collected order
         for (auto node : nodes)
         {
             visit(node->getData());
@@ -1057,12 +1046,10 @@ BinaryTree<T> *BinaryTree<T>::findByPath(const std::string &path) const
         }
         else
         {
-            // Invalid path character
             return nullptr;
         }
     }
 
-    // Clone the subtree rooted at the found node
     BinaryTree<T> *subtree = new BinaryTree<T>();
     subtree->root = current->clone();
 

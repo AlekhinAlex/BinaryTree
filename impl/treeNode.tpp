@@ -1,6 +1,6 @@
 #include "../inc/treeNode.hpp"
-#include <algorithm> // For std::max
-#include <stdexcept> // For std::logic_error
+#include <algorithm>
+#include <stdexcept>
 
 template <typename T>
 TreeNode<T>::~TreeNode<T>()
@@ -113,7 +113,7 @@ TreeNode<T> *TreeNode<T>::clone() const
     {
         newNode->right = right->clone();
     }
-    newNode->height = this->height; // Preserve height property
+    newNode->height = this->height;
     return newNode;
 }
 

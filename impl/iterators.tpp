@@ -122,8 +122,6 @@ bool BinaryTreeIterator<T>::operator==(const BinaryTreeIterator<T> &other) const
     return !(*this != other);
 }
 
-// ConstBinaryTreeIterator implementation
-
 template <typename T>
 void ConstBinaryTreeIterator<T>::buildInOrder(ConstNodePtr node)
 {
