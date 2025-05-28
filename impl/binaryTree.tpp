@@ -625,7 +625,6 @@ void BinaryTree<T>::balance()
     if (!root)
         return;
     std::vector<T> values;
-    // Collect values in inorder
     std::function<void(TreeNode<T> *)> inorder = [&](TreeNode<T> *node)
     {
         if (!node)
@@ -741,9 +740,13 @@ void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
         q.pop();
         current->clearThreads();
         if (current->getLeft())
+        {
             q.push(current->getLeft());
+        }
         if (current->getRight())
+        {
             q.push(current->getRight());
+        }
     }
 
     std::vector<TreeNode<T> *> nodes;
@@ -780,12 +783,18 @@ void BinaryTree<T>::makeThreaded(const std::string &traversalOrder)
         std::function<void(TreeNode<T> *)> inorder = [&](TreeNode<T> *node)
         {
             if (!node)
+            {
                 return;
+            }
             if (!node->hasLeftThread())
+            {
                 inorder(node->getLeft());
+            }
             nodes.push_back(node);
             if (!node->hasRightThread())
+            {
                 inorder(node->getRight());
+            }
         };
         inorder(root);
     }
@@ -997,13 +1006,11 @@ std::string BinaryTree<T>::serialize(const std::string &traversalOrder) const
             values.push_back(current->getData());
             isNull.push_back(false);
 
-            // Add children (or null placeholders)
             q.push(current->getLeft());
             q.push(current->getRight());
         }
         else
         {
-            // Add null placeholder
             values.push_back(T());
             isNull.push_back(true);
         }
